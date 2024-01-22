@@ -17,29 +17,30 @@ permissions:
   security-events: write
 
 jobs:
-
   test:
-    name: Lint and Test
-    uses: ./.github/actions/lint-test
-    secrets: inherit
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  terraform-check:
-    name: Terraform Lint and Setup
-    uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
-    needs: [test]
-    with:
-      environment: test
-      is_deployment: false
-      command: "terraform fmt -check && terraform validate"
-    secrets: inherit
+      - name: Lint and Test
+        uses: ./.github/actions/lint-test
 
   build:
     name: Build
-    uses: ./.github/actions/build
-    secrets: inherit
-    needs: [terraform-check]
-    with:
-      app_slug: demo
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          app_slug: demo
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   test-deploy:
     name: Deploy (TEST)
@@ -49,7 +50,7 @@ jobs:
     with:
       deploy_target: test
       app_slug: demo
-      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}  
 
   stage-deploy:
     name: Deploy (STAGE)

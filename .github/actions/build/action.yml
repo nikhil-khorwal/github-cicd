@@ -55,3 +55,4 @@ runs:
       shell: bash
       run: |
         docker ps
+        aws --version
