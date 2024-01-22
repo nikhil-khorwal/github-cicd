@@ -41,3 +41,4 @@ runs:
       run: |
         source .venv/bin/activate
         alembic --version
+      working-directory: demo

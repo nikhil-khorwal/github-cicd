@@ -19,24 +19,15 @@ on:
         required: true
 
 jobs:
-  migration:
+  run-migrations:
     name: Run migrations
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Run migrations up command
-        shell: bash
-        run: |
-          echo "Run migrations"
-
-  deploy:
-    name: Run depoyment
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Run depoyment
-        shell: bash
-        run: |
-          echo "Run depoyment"
+      - name: Run migrations
+        uses: ./.github/actions/migration
+        id: migrate
+        with:
+          deploy_target: ${{inputs.deploy_target}}
+          app_slug: ${{inputs.app_slug}}
