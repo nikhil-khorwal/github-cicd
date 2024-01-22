@@ -19,24 +19,24 @@ inputs:
     required: true
 runs:
   using: composite
-    steps:
-      - uses: actions/checkout@v3
+  steps:
+    - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
-        with:
-          python-version: ${{ inputs.python_version }}
+    - uses: actions/setup-python@v4
+      with:
+        python-version: ${{ inputs.python_version }}
 
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: ${{ inputs.poetry_version }}
-          virtualenvs-in-project: true
+    - name: Install and configure Poetry
+      uses: snok/install-poetry@v1
+      with:
+        version: ${{ inputs.poetry_version }}
+        virtualenvs-in-project: true
 
-      - name: Install dependencies
-        shell: bash
-        run: make install
+    - name: Install dependencies
+      shell: bash
+      run: make install
 
-      - name: Run migrations up command
-        shell: bash
-        run: |
-          alembic upgrade head
+    - name: Run migrations up command
+      shell: bash
+      run: |
+        alembic upgrade head
