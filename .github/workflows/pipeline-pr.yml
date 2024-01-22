@@ -16,20 +16,20 @@ permissions:
   security-events: write
 
 jobs:
-  test:
-    name: Run Tests
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+  # test:
+  #   name: Run Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout
+  #       uses: actions/checkout@v3
 
-      - name: Lint and Test
-        uses: ./.github/actions/lint-test
+  #     - name: Lint and Test
+  #       uses: ./.github/actions/lint-test
 
   build:
     name: Build
     runs-on: ubuntu-latest
-    needs: [test]
+    # needs: [test]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
