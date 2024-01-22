@@ -5,6 +5,7 @@ app_name?=demo
 
 install:
 	@(poetry install)
+	source .venv/bin/activate
 
 lint-and-test:
 	rm -rf ./.tox | true
