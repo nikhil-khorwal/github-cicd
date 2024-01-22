@@ -1,10 +1,12 @@
 name: PR
 
 on:
-  pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize, ready_for_review]
-
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - release
+      - version*
 permissions:
   contents: write
   packages: read
