@@ -34,7 +34,7 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: make install
+      run: python -m pip install alembic
 
     - name: Run migrations up command
       shell: bash
