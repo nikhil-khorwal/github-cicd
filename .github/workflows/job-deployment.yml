@@ -1,0 +1,33 @@
+# Deploys the application and infra into a target environment.
+#
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      deploy_target:
+        description: Deploy target, e.g. 'prod' or 'stage'
+        type: string
+        required: true
+      app_slug:
+        description: Application slug in kebab case, e.g. 'demo'
+        type: string
+        required: true
+      container_image_tag:
+        description: Tag of the container image to deploy
+        type: string
+        required: true
+
+jobs:
+  run-migrations:
+    name: Run migrations
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run migrations
+        uses: ./.github/actions/migration
+        id: migrate
+        with:
+          deploy_target: ${{inputs.deploy_target}}
+          app_slug: ${{inputs.app_slug}}

@@ -1,0 +1,133 @@
+# name: Bunker Tanks API
+
+# on:
+#   push:
+#     branches:
+#     - main
+#   pull_request:
+
+# jobs:
+#   test:
+#     name: Run tests & export requirements
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         python-version: ['3.9']
+
+#     steps:
+#     - name: Checkout
+#       uses: actions/checkout@v3
+#     - name: Set up Python ${{ matrix.python-version }}
+#       uses: actions/setup-python@v4
+#       with:
+#         python-version: ${{ matrix.python-version }}
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         python -m pip install tox==3.25.0 poetry tox-poetry tox-gh-actions
+#     - name: Test with tox
+#       run: |
+#         rm -rf ./.tox | true
+#         tox
+#     - name: Export dependencies
+#       run: |
+#         poetry export -f requirements.txt --output requirements.txt --without-hashes
+#         pip install --target ./package -r requirements.txt
+#         cd package
+#         zip -r ../demo.zip .
+#         cd ..
+#         zip -r demo.zip demo
+#         zip demo.zip alembic.ini
+#     - uses: actions/upload-artifact@v3
+#       with:
+#         name: lambda-requirements
+#         retention-days: 5
+#         path: demo.zip
+
+#   ## Terraform Check ###
+#   terraform-check:
+#     name: Terraform Lint and Setup
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [test]
+#     if: ${{ !github.event.pull_request.draft }}
+#     with:
+#       environment: test
+#       is_deployment: false
+#       command: "terraform fmt -check && terraform validate"
+#       artifact: lambda-requirements
+#     secrets: inherit
+
+#   ### Terraform TEST ###
+
+#   terraform-plan-test:
+#     name: Terraform Plan Test
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-check]
+#     with:
+#       environment: test
+#       is_deployment: false
+#       artifact: lambda-requirements
+#       command: "terraform plan"
+#     secrets: inherit
+
+#   terraform-apply-test:
+#     name: Terraform Apply Test
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-plan-test]
+#     with:
+#       environment: test
+#       command: "ls .. && terraform apply -auto-approve"
+#       artifact: lambda-requirements
+#     secrets: inherit
+
+#   ### Terraform STAGE ###
+
+#   terraform-plan-stage:
+#     name: Terraform Plan Stage
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-check]
+#     with:
+#       environment: stage
+#       is_deployment: false
+#       command: "terraform plan"
+#       artifact: lambda-requirements
+#     secrets: inherit
+
+#   terraform-apply-stage:
+#     name: Terraform Apply Stage
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-apply-test, terraform-plan-stage]
+#     with:
+#       environment: stage
+#       command: "terraform apply -auto-approve"
+#       artifact: lambda-requirements
+#     secrets: inherit
+
+#   ### Terraform PROD ###
+
+#   terraform-plan-prod:
+#     name: Terraform Plan Prod
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-check]
+#     with:
+#       environment: prod
+#       is_deployment: false
+#       command: "terraform plan"
+#       artifact: lambda-requirements
+#     secrets: inherit
+
+#   terraform-apply-prod:
+#     name: Terraform Apply Prod
+#     if: ${{ !github.event.pull_request }}
+#     uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+#     needs: [terraform-apply-stage, terraform-plan-prod]
+#     with:
+#       environment: prod
+#       command: "terraform apply -auto-approve"
+#       artifact: lambda-requirements
+#     secrets: inherit

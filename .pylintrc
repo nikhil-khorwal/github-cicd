@@ -1,0 +1,14 @@
+[MESSAGES CONTROL]
+disable=
+    missing-class-docstring,
+    too-few-public-methods,
+    no-name-in-module,
+    missing-module-docstring,
+    missing-function-docstring,
+    fixme,
+    unspecified-encoding,
+    missing-timeout,
+
+[SIMILARITIES]
+ignore-imports=yes
+min-similarity-lines=7

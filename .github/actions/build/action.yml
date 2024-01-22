@@ -1,0 +1,51 @@
+# Builds artifacts from code.
+#
+name: Build
+
+inputs:
+  python_version:
+    description: Python version, e.g. '3.10'
+    type: string
+    default: '3.10'
+  poetry_version:
+    description: Poetry version, e.g. '1.3.1'
+    type: string
+    default: '1.3.1'
+  app_slug:
+    description: Application slug in kebab case, e.g. 'bunker-planner-application'
+    type: string
+    required: true
+  aws_region:
+    description: AWS Region
+    type: string
+    default: "eu-west-1"
+
+outputs:
+  docker_image_tag:
+    description: Tag of the published Docker image
+    value: ${{ steps.build_image.outputs.image_tag }}
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+
+runs:
+  using: composite
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install and configure Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: ${{ inputs.poetry_version }}
+          virtualenvs-in-project: true
+
+      - name: Install dependencies
+        shell: bash
+        run: make install

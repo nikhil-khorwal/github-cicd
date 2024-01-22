@@ -1,0 +1,27 @@
+version: "3.9"
+services:
+  demo:
+    build:
+      context: .
+      network: host
+    env_file:
+      - ./.env
+    ports:
+      - 8000:8000
+
+  postgres:
+    restart: always
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_NAME=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_HOST=${DB_HOST}
+    ports:
+      - "${DB_PORT}:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:

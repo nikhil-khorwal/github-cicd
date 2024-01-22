@@ -1,0 +1,50 @@
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize, ready_for_review]
+
+permissions:
+  contents: write
+  packages: read
+  pull-requests: write
+  id-token: write
+  actions: read
+  security-events: write
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Lint and Test
+        uses: ./.github/actions/lint-test
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          app_slug: demo
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+  test-deploy:
+    name: Deploy (TEST)
+    uses: ./.github/workflows/job-deployment.yml
+    secrets: inherit
+    needs: [build]
+    with:
+      deploy_target: test
+      app_slug: demo
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}

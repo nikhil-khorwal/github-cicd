@@ -1,0 +1,72 @@
+name: Main
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - release
+      - version*
+
+permissions:
+  contents: write
+  packages: read
+  pull-requests: write
+  id-token: write
+  actions: read
+  security-events: write
+
+jobs:
+
+  test:
+    name: Lint and Test
+    uses: ./.github/actions/lint-test
+    secrets: inherit
+
+  terraform-check:
+    name: Terraform Lint and Setup
+    uses: 0north/github_templates/.github/workflows/terraform-setup.yml@main
+    needs: [test]
+    with:
+      environment: test
+      is_deployment: false
+      command: "terraform fmt -check && terraform validate"
+    secrets: inherit
+
+  build:
+    name: Build
+    uses: ./.github/actions/build
+    secrets: inherit
+    needs: [terraform-check]
+    with:
+      app_slug: demo
+
+  test-deploy:
+    name: Deploy (TEST)
+    uses: ./.github/workflows/job-deployment.yml
+    secrets: inherit
+    needs: [build]
+    with:
+      deploy_target: test
+      app_slug: demo
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}
+
+  stage-deploy:
+    name: Deploy (STAGE)
+    uses: ./.github/workflows/job-deployment.yml
+    secrets: inherit
+    needs: [build, test-deploy]
+    with:
+      deploy_target: stage
+      app_slug: demo
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}
+
+  prod-deploy:
+    name: Deploy (PROD)
+    uses: ./.github/workflows/job-deployment.yml
+    secrets: inherit
+    needs: [build, stage-deploy]
+    with:
+      deploy_target: prod
+      app_slug: demo
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}
