@@ -5,7 +5,6 @@ app_name?=demo
 
 install:
 	@(poetry install)
-	poetry shell
 
 lint-and-test:
 	rm -rf ./.tox | true

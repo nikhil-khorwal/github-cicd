@@ -48,8 +48,10 @@ runs:
 
     - name: Install dependencies
       shell: bash
-      run: make install
-    
+      run: |
+        source .venv/bin/activate
+        make install
+
     - name: check
       shell: bash
       run: |
