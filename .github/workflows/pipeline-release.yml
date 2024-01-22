@@ -50,7 +50,7 @@ jobs:
     with:
       deploy_target: test
       app_slug: demo
-      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}  
+      container_image_tag: ${{ needs.build.outputs.docker_image_tag }}
 
   stage-deploy:
     name: Deploy (STAGE)
