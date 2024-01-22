@@ -39,4 +39,5 @@ runs:
     - name: Run migrations up command
       shell: bash
       run: |
-        alembic upgrade head
+        source .venv/bin/activate
+        alembic --version
